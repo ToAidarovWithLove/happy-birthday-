@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>КАПСУЛА ВРЕМЕНИ — Никитке от Владика</title>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Martian+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0c09;
+      --ink: #f0ead6;
+      --faded: #7a7060;
+      --burn: #c8441a;
+      --rust: #8b3a1a;
+      --gold: #d4a843;
+      --paper: #1a1710;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Martian Mono', monospace;
+      overflow-x: hidden;
+      cursor: crosshair;
+    }
+
+    /* SCANLINES */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg, transparent, transparent 2px,
+        rgba(0,0,0,0.07) 2px, rgba(0,0,0,0.07) 4px
+      );
+      pointer-events: none;
+      z-index: 998;
+    }
+
+    /* GRAIN */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: -50%;
+      width: 200%; height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23g)' opacity='0.12'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 997;
+      animation: grainShift 0.5s steps(1) infinite;
+    }
+
+    @keyframes grainShift {
+      0%   { transform: translate(0,0); }
+      25%  { transform: translate(-5px, 3px); }
+      50%  { transform: translate(3px,-5px); }
+      75%  { transform: translate(-3px,-2px); }
+      100% { transform: translate(5px, 4px); }
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg-text {
+      position: absolute;
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 900;
+      font-size: clamp(6rem, 20vw, 18rem);
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(200,68,26,0.1);
+      line-height: 1;
+      user-select: none;
+      white-space: nowrap;
+      letter-spacing: -0.05em;
+      pointer-events: none;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    .hero-tag {
+      font-size: 0.65rem;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      color: var(--faded);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: emerge 0.8s 0.4s forwards;
+    }
+
+    .hero-main {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2.5rem, 10vw, 8rem);
+      line-height: 0.95;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: emerge 0.8s 0.6s forwards;
+    }
+
+    .hero-main .t1 { display: block; color: var(--ink); }
+    .hero-main .t2 { display: block; color: var(--burn); font-size: 0.45em; margin-top: 0.2em; }
+    .hero-main .t3 { display: block; color: var(--gold); font-size: 0.3em; margin-top: 0.3em; font-weight: 400; letter-spacing: 2px; }
+
+    .hero-divider {
+      width: 1px; height: 80px;
+      background: linear-gradient(var(--burn), transparent);
+      margin: 0 auto 2rem;
+      opacity: 0;
+      animation: emerge 0.8s 1s forwards;
+    }
+
+    .hero-scroll {
+      font-size: 0.65rem;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--burn);
+      opacity: 0;
+      animation: emerge 0.8s 1.2s forwards, blink 2s 2s infinite;
+    }
+
+    /* ─── SECTIONS ─── */
+    .section {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 6rem 2rem;
+    }
+
+    .section-label {
+      font-size: 0.6rem;
+      letter-spacing: 8px;
+      text-transform: uppercase;
+      color: var(--faded);
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 40px; height: 1px;
+      background: var(--faded);
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-family: 'Unbounded', sans-serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 6vw, 4.5rem);
+      line-height: 1;
+      margin-bottom: 3rem;
+    }
+
+    /* ─── SPOILER ─── */
+    .spoiler-trigger {
+      width: 100%;
+      background: none;
+      border: 1px solid rgba(200,68,26,0.45);
+      color: var(--ink);
+      font-family: 'Martian Mono', monospace;
+      font-size: 0.85rem;
+      padding: 1.8rem 2rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+
+    .spoiler-trigger::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--burn);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.5s cubic-bezier(0.76,0,0.24,1);
+      z-index: 0;
+    }
+
+    .spoiler-trigger:hover::before,
+    .spoiler-trigger.open::before { transform: scaleX(1); }
+    .spoiler-trigger:hover, .spoiler-trigger.open { border-color: var(--burn); }
+
+    .trigger-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .trigger-icon {
+      font-size: 1.5rem;
+      transition: transform 0.4s;
+    }
+
+    .spoiler-trigger.open .trigger-icon { transform: rotate(25deg); }
+
+    .trigger-text { text-align: left; }
+    .trigger-text strong { display: block; margin-bottom: 4px; letter-spacing: 2px; }
+    .trigger-text small { font-size: 0.7rem; color: rgba(240,234,214,0.45); }
+
+    .trigger-arrow {
+      position: relative; z-index: 1;
+      font-size: 1.2rem;
+      display: inline-block;
+      transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .spoiler-trigger.open .trigger-arrow { transform: rotate(180deg); }
+
+    /* SPOILER BODY */
+    .spoiler-body {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.9s cubic-bezier(0.16,1,0.3,1);
+    }
+
+    .spoiler-body.open { max-height: 4000px; }
+
+    .letter-inner {
+      border: 1px solid rgba(200,68,26,0.2);
+      border-top: none;
+      padding: 3rem 2.5rem;
+      position: relative;
+      background: var(--paper);
+    }
+
+    /* Lined paper */
+    .letter-inner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        transparent, transparent 31px,
+        rgba(200,68,26,0.04) 31px, rgba(200,68,26,0.04) 32px
+      );
+      pointer-events: none;
+    }
+
+    .letter-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem 2rem;
+      margin-bottom: 2.5rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(200,68,26,0.2);
+      font-size: 0.7rem;
+      color: var(--faded);
+      position: relative;
+    }
+
+    .letter-meta div span { color: var(--gold); }
+
+    .letter-text {
+      font-size: 0.9rem;
+      line-height: 2.1;
+      color: rgba(240,234,214,0.85);
+      position: relative;
+    }
+
+    .letter-text p {
+      margin-bottom: 1.6rem;
+      opacity: 0;
+      transform: translateX(-12px);
+      transition: opacity 0.5s, transform 0.5s;
+    }
+
+    .spoiler-body.open .letter-text p { opacity: 1; transform: none; }
+    .letter-text p:nth-child(1) { transition-delay: 0.15s; }
+    .letter-text p:nth-child(2) { transition-delay: 0.25s; }
+    .letter-text p:nth-child(3) { transition-delay: 0.35s; }
+    .letter-text p:nth-child(4) { transition-delay: 0.45s; }
+    .letter-text p:nth-child(5) { transition-delay: 0.55s; }
+    .letter-text p:nth-child(6) { transition-delay: 0.65s; }
+    .letter-text p:nth-child(7) { transition-delay: 0.75s; }
+
+    .letter-text .hot { color: var(--burn); font-weight: 700; }
+    .letter-text .gold { color: var(--gold); }
+    .letter-text .em { font-style: italic; color: rgba(240,234,214,0.55); }
+
+    .letter-sign {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(200,68,26,0.2);
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .sign-block { text-align: right; }
+    .sign-from { font-size: 0.65rem; letter-spacing: 4px; color: var(--faded); text-transform: uppercase; margin-bottom: 0.4rem; }
+    .sign-name { font-family: 'Unbounded', sans-serif; font-size: 1.8rem; color: var(--burn); }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--burn) 30%, var(--rust) 70%, transparent);
+      opacity: 0.4;
+    }
+
+    /* ─── VIDEOS ─── */
+    .videos-section {
+      padding: 5rem 2rem 8rem;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .videos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1px;
+      background: rgba(200,68,26,0.2);
+      border: 1px solid rgba(200,68,26,0.2);
+    }
+
+    .video-slot {
+      background: var(--paper);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .video-slot::before {
+      content: attr(data-num);
+      position: absolute;
+      top: 10px; left: 12px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 0.6rem;
+      color: var(--burn);
+      letter-spacing: 3px;
+      z-index: 4;
+    }
+
+    .video-wrapper {
+      position: relative;
+      padding-bottom: 56.25%;
+      background: #000;
+    }
+
+    .video-wrapper video {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+
+    .video-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(13,12,9,0.55);
+      cursor: pointer;
+      transition: background 0.3s;
+      z-index: 3;
+    }
+
+    .video-overlay:hover { background: rgba(13,12,9,0.25); }
+    .video-overlay.hidden { display: none; }
+
+    .play-btn {
+      width: 60px; height: 60px;
+      border: 2px solid var(--burn);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      color: var(--burn);
+      transition: transform 0.3s, background 0.3s, color 0.3s;
+    }
+
+    .video-overlay:hover .play-btn {
+      transform: scale(1.15);
+      background: var(--burn);
+      color: #fff;
+    }
+
+    .video-caption {
+      padding: 12px 14px 14px;
+      font-size: 0.65rem;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--faded);
+    }
+
+    /* ─── MUSIC BAR ─── */
+    .music-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 54px;
+      background: rgba(13,12,9,0.97);
+      border-top: 1px solid rgba(200,68,26,0.35);
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+      gap: 1rem;
+      z-index: 100;
+      backdrop-filter: blur(20px);
+    }
+
+    .mplay-btn {
+      width: 36px; height: 36px;
+      border: 1px solid var(--burn);
+      background: none;
+      color: var(--burn);
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+      flex-shrink: 0;
+    }
+
+    .mplay-btn:hover, .mplay-btn.active { background: var(--burn); color: #fff; }
+
+    .music-info { flex: 1; min-width: 0; }
+    .music-track { font-size: 0.6rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .music-hint { font-size: 0.55rem; color: var(--faded); letter-spacing: 2px; }
+
+    .vis { display: flex; align-items: flex-end; gap: 2px; height: 24px; }
+    .vis-bar { width: 3px; background: var(--burn); border-radius: 1px; height: 3px; }
+    .playing .vis-bar:nth-child(1) { animation: v1 0.45s ease-in-out infinite alternate; }
+    .playing .vis-bar:nth-child(2) { animation: v2 0.60s ease-in-out infinite alternate; }
+    .playing .vis-bar:nth-child(3) { animation: v3 0.35s ease-in-out infinite alternate; }
+    .playing .vis-bar:nth-child(4) { animation: v4 0.70s ease-in-out infinite alternate; }
+    .playing .vis-bar:nth-child(5) { animation: v5 0.50s ease-in-out infinite alternate; }
+    .playing .vis-bar:nth-child(6) { animation: v6 0.55s ease-in-out infinite alternate; }
+
+    /* ─── SCROLL REVEAL ─── */
+    .reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1); }
+    .reveal.in { opacity: 1; transform: none; }
+
+    /* ─── KEYFRAMES ─── */
+    @keyframes emerge {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+    @keyframes v1 { to { height: 18px; } }
+    @keyframes v2 { to { height: 22px; } }
+    @keyframes v3 { to { height: 12px; } }
+    @keyframes v4 { to { height: 20px; } }
+    @keyframes v5 { to { height: 16px; } }
+    @keyframes v6 { to { height: 14px; } }
+
+    @media (max-width: 600px) {
+      .letter-meta { grid-template-columns: 1fr; }
+      .letter-inner { padding: 2rem 1.2rem; }
+      .videos-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-text" style="top:-5%;left:-5%;">НИКИТКА</div>
+    <div class="hero-bg-text" style="bottom:-5%;right:-5%;">2026</div>
+    <div class="hero-content">
+      <div class="hero-tag">Доставлено · 27 апреля 2026</div>
+      <h1 class="hero-main">
+        <span class="t1">КАПСУЛА</span>
+        <span class="t2">ВРЕМЕНИ</span>
+        <span class="t3">от Владика → Никитке</span>
+      </h1>
+      <div class="hero-divider"></div>
+      <div class="hero-scroll">↓ скролль вниз ↓</div>
+    </div>
+  </section>
+
+  <!-- LETTER -->
+  <div class="section reveal">
+    <div class="section-label">01 — письмо</div>
+    <h2 class="section-title" style="color:var(--burn)">ПОСЛАНИЕ<br><span style="color:var(--ink);font-size:0.5em;font-weight:400;">из прошлого</span></h2>
+
+    <button class="spoiler-trigger" id="spoilerBtn" onclick="toggleSpoiler()">
+      <div class="trigger-left">
+        <div class="trigger-icon">📩</div>
+        <div class="trigger-text">
+          <strong>ВСКРЫТЬ ПИСЬМО</strong>
+          <small>содержит личную информацию · нажми чтобы прочитать</small>
+        </div>
+      </div>
+      <div class="trigger-arrow">↓</div>
+    </button>
+
+    <div class="spoiler-body" id="spoilerBody">
+      <div class="letter-inner">
+        <div class="letter-meta">
+          <div>ОТ: <span>Владик</span></div>
+          <div>КОМУ: <span>Никитке</span></div>
+          <div>ДАТА: <span>27.04.2026</span></div>
+          <div>СТАТУС: <span>доставлено ✓</span></div>
+        </div>
+        <div class="letter-text">
+          <p>Здарова <span class="hot">Никитос!</span></p>
+          <p>Хуй знает, где ты сейчас и чем занят, но если читаешь — значит капсула дожила, и ты тоже)</p>
+          <p>Помнишь, как мы на первой паре у <span class="gold">Тёти Дорф</span> встретились? Я тоже не помню. Ты зашел такой тихо, не спеша, без суеты. Я тогда еще на тебя посмотрел и подумал <span class="em">"Что за додик доходяга?"</span></p>
+          <p>Но мнение моё быстро поменялось. Оказалось что ты единственный из компании, кто реально отвечает за слова. Сказал — сделал, без лишнего нытья и отмазок. За общагу тебе <span class="hot">отдельное спасибо</span>, выручил пиздец. Я тогда деканат и РСО заёбывал, ничего не получалось, а ты одним звонком всё решил.</p>
+          <p>А веселья в общаге какие были — вспоминаю как мы на тебя <span class="gold">каску нацепили</span> и пытались бутылку об твою голову разбить, <span class="em">бутылка оказалась крепче твоего черепа)</span> пришлось её потом на подоконнике добивать. А эти догонялки с <span class="hot">шокером</span> в комнате просто от нехуй делать? Надеюсь ты сейчас нихуя себе солидный дядя и от шокера не прыгаешь, хотя...</p>
+          <p>Кем я тебя вижу через десять лет? Думаю, ты сейчас какая-нибудь <span class="gold">шишка на стройке</span> <span class="em">(Если конечно же ПГС)</span> С твоим умением решать вопросы и не ебать мозг, ты точно должен был куда-то высоко залезть. Что в тебе бесит? Да то что ты иногда слишком правильный, <span class="em">аж доебаться не к чему.</span></p>
+          <p>Желаю тебе, чтобы всё у тебя шло так же <span class="hot">тихо и без суеты</span>, как ты в ту аудиторию зашел. Чтобы деньги были, здоровье не подводило, и чтобы рядом были люди, которые за тебя так же впишутся, как ты за своих.</p>
+        </div>
+        <div class="letter-sign">
+          <div class="sign-block">
+            <div class="sign-from">написано с любовью и без нытья</div>
+            <div class="sign-name">ВЛАДИК</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider" style="max-width:860px;margin:0 auto;"></div>
+
+  <!-- VIDEOS -->
+  <div class="videos-section reveal">
+    <div class="section-label">02 — видеоархив</div>
+    <h2 class="section-title" style="color:var(--gold)">СМЕШНЫЕ<br><span style="color:var(--ink);font-size:0.5em;font-weight:400;">видео из архива</span></h2>
+
+    <div class="videos-grid">
+      <div class="video-slot" data-num="01">
+        <div class="video-wrapper">
+          <video id="v1" preload="none" src="videos/video1.mp4"></video>
+          <div class="video-overlay" id="ov1" onclick="playVid('v1','ov1')">
+            <div class="play-btn">▶</div>
+          </div>
+        </div>
+        <div class="video-caption">Видос #1 — классика</div>
+      </div>
+
+      <div class="video-slot" data-num="02">
+        <div class="video-wrapper">
+          <video id="v2" preload="none" src="videos/video2.mp4"></video>
+          <div class="video-overlay" id="ov2" onclick="playVid('v2','ov2')">
+            <div class="play-btn">▶</div>
+          </div>
+        </div>
+        <div class="video-caption">Видос #2 — это уже диагноз</div>
+      </div>
+
+      <div class="video-slot" data-num="03">
+        <div class="video-wrapper">
+          <video id="v3" preload="none" src="videos/video3.mp4"></video>
+          <div class="video-overlay" id="ov3" onclick="playVid('v3','ov3')">
+            <div class="play-btn">▶</div>
+          </div>
+        </div>
+        <div class="video-caption">Видос #3 — без комментариев</div>
+      </div>
+    </div>
+
+    <p style="font-size:0.6rem;color:var(--faded);margin-top:1.2rem;letter-spacing:2px;line-height:1.8;">
+      * положи видео в папку <span style="color:var(--burn);">videos/</span> рядом с index.html → video1.mp4, video2.mp4, video3.mp4<br>
+      * музыку положи как <span style="color:var(--burn);">music.mp3</span> рядом с index.html
+    </p>
+  </div>
+
+  <!-- MUSIC BAR -->
+  <div class="music-bar">
+    <button class="mplay-btn" id="mBtn" onclick="toggleMusic()">▶</button>
+    <div class="music-info">
+      <div class="music-track">🎵 music.mp3</div>
+      <div class="music-hint">фоновая музыка капсулы · нажми чтобы включить</div>
+    </div>
+    <div class="vis" id="vis">
+      <div class="vis-bar"></div>
+      <div class="vis-bar"></div>
+      <div class="vis-bar"></div>
+      <div class="vis-bar"></div>
+      <div class="vis-bar"></div>
+      <div class="vis-bar"></div>
+    </div>
+  </div>
+
+  <audio id="bgMusic" loop src="music.mp3"></audio>
+
+  <script>
+    // SPOILER
+    function toggleSpoiler() {
+      document.getElementById('spoilerBtn').classList.toggle('open');
+      document.getElementById('spoilerBody').classList.toggle('open');
+    }
+
+    // MUSIC
+    const audio = document.getElementById('bgMusic');
+    const mBtn  = document.getElementById('mBtn');
+    const vis   = document.getElementById('vis');
+    let isPlaying = false;
+
+    function toggleMusic() {
+      if (isPlaying) {
+        audio.pause();
+        mBtn.textContent = '▶';
+        mBtn.classList.remove('active');
+        vis.classList.remove('playing');
+        isPlaying = false;
+      } else {
+        audio.play().catch(() => {});
+        mBtn.textContent = '⏸';
+        mBtn.classList.add('active');
+        vis.classList.add('playing');
+        isPlaying = true;
+      }
+    }
+
+    // Auto-play on first click anywhere
+    document.addEventListener('click', function init() {
+      if (!isPlaying) toggleMusic();
+      document.removeEventListener('click', init);
+    });
+
+    // VIDEO PLAY
+    function playVid(videoId, overlayId) {
+      document.getElementById(overlayId).classList.add('hidden');
+      const vid = document.getElementById(videoId);
+      vid.controls = true;
+      vid.play();
+    }
+
+    // SCROLL REVEAL
+    const obs = new IntersectionObserver(
+      entries => entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); }),
+      { threshold: 0.08 }
+    );
+    document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+  </script>
+</body>
+</html>
