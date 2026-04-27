@@ -85,6 +85,9 @@
       pointer-events: none;
     }
 
+    .hero-bg-nikitka { top: -2%; left: 0; }
+    .hero-bg-2026    { bottom: -5%; right: 2%; }
+
     .hero-content {
       position: relative;
       z-index: 2;
@@ -465,12 +468,12 @@
     @keyframes v6 { to { height: 14px; } }
 
     @media (max-width: 600px) {
-	  .letter-meta { grid-template-columns: 1fr; }
-	  .letter-inner { padding: 2rem 1.2rem; }
-	  .videos-grid { grid-template-columns: 1fr; }
-	  .hero-bg-text:first-child { top: 20% !important; left: 0% !important; }
-	  .hero-bg-text:last-child  { bottom: 20% !important; right: 2% !important; }
-	}
+      .letter-meta { grid-template-columns: 1fr; }
+      .letter-inner { padding: 2rem 1.2rem; }
+      .videos-grid { grid-template-columns: 1fr; }
+      .hero-bg-nikitka { top: 8%; left: 0; }
+      .hero-bg-2026    { bottom: 8%; right: 0; }
+    }
     @keyframes entryBlink { 0%,100%{opacity:1} 50%{opacity:0.3} }
     #entryOverlay { position:fixed;inset:0;z-index:99999;background:#0d0c09;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2rem;cursor:pointer; }
     #entryOverlay h2 { font-family:'Unbounded',sans-serif;font-size:clamp(1.2rem,5vw,2.5rem);font-weight:900;color:#f0ead6;letter-spacing:4px;text-align:center;line-height:1.2; }
@@ -487,8 +490,8 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-bg-text" style="top:-2%;left:0%;">НИКИТКА</div>
-    <div class="hero-bg-text" style="bottom:-5%;right:2%;">2026</div>
+    <div class="hero-bg-text hero-bg-nikitka">НИКИТКА</div>
+    <div class="hero-bg-text hero-bg-2026">2026</div>
     <div class="hero-content">
       <div class="hero-tag">Доставлено · 27 апреля 2026</div>
       <h1 class="hero-main">
