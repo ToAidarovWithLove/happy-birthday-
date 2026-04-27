@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>КАПСУЛА ВРЕМЕНИ — Никитке от Владика</title>
+  <title>С любовью!</title>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Martian+Mono:wght@300;400;700&display=swap" rel="stylesheet">
   <style>
     :root {
@@ -24,7 +24,7 @@
       color: var(--ink);
       font-family: 'Martian Mono', monospace;
       overflow-x: hidden;
-      cursor: crosshair;
+      cursor: default;
     }
 
     /* SCANLINES */
@@ -475,8 +475,8 @@
 
   <!-- HERO -->
   <section class="hero">
-    <div class="hero-bg-text" style="top:-5%;left:-5%;">НИКИТКА</div>
-    <div class="hero-bg-text" style="bottom:-5%;right:-5%;">2026</div>
+    <div class="hero-bg-text" style="top:-2%;left:0%;">НИКИТКА</div>
+    <div class="hero-bg-text" style="bottom:-5%;right:2%;">2026</div>
     <div class="hero-content">
       <div class="hero-tag">Доставлено · 27 апреля 2026</div>
       <h1 class="hero-main">
@@ -571,18 +571,14 @@
       </div>
     </div>
 
-    <p style="font-size:0.6rem;color:var(--faded);margin-top:1.2rem;letter-spacing:2px;line-height:1.8;">
-      * положи видео в папку <span style="color:var(--burn);">videos/</span> рядом с index.html → video1.mp4, video2.mp4, video3.mp4<br>
-      * музыку положи как <span style="color:var(--burn);">music.mp3</span> рядом с index.html
-    </p>
   </div>
 
   <!-- MUSIC BAR -->
   <div class="music-bar">
     <button class="mplay-btn" id="mBtn" onclick="toggleMusic()">▶</button>
     <div class="music-info">
-      <div class="music-track">🎵 music.mp3</div>
-      <div class="music-hint">фоновая музыка капсулы · нажми чтобы включить</div>
+      <div class="music-track">🎵 Memories</div>
+      <div class="music-hint">прикольно, не?</div>
     </div>
     <div class="vis" id="vis">
       <div class="vis-bar"></div>
@@ -609,34 +605,58 @@
     const vis   = document.getElementById('vis');
     let isPlaying = false;
 
+    function setMusicState(playing) {
+      isPlaying = playing;
+      mBtn.textContent = playing ? '⏸' : '▶';
+      mBtn.classList.toggle('active', playing);
+      vis.classList.toggle('playing', playing);
+    }
+
     function toggleMusic() {
       if (isPlaying) {
         audio.pause();
-        mBtn.textContent = '▶';
-        mBtn.classList.remove('active');
-        vis.classList.remove('playing');
-        isPlaying = false;
+        setMusicState(false);
       } else {
         audio.play().catch(() => {});
-        mBtn.textContent = '⏸';
-        mBtn.classList.add('active');
-        vis.classList.add('playing');
-        isPlaying = true;
+        setMusicState(true);
       }
     }
 
-    // Auto-play on first click anywhere
-    document.addEventListener('click', function init() {
-      if (!isPlaying) toggleMusic();
-      document.removeEventListener('click', init);
+    // Try autoplay immediately
+    audio.volume = 0.7;
+    audio.play().then(() => { setMusicState(true); }).catch(() => {
+      // Fallback: play on first interaction
+      const playOnce = () => {
+        audio.play().then(() => { setMusicState(true); }).catch(() => {});
+        document.removeEventListener('click', playOnce);
+        document.removeEventListener('touchstart', playOnce);
+        document.removeEventListener('keydown', playOnce);
+      };
+      document.addEventListener('click', playOnce);
+      document.addEventListener('touchstart', playOnce);
+      document.addEventListener('keydown', playOnce);
     });
 
-    // VIDEO PLAY
+    mBtn.onclick = toggleMusic;
+
+    // VIDEO PLAY — pause music when video plays
     function playVid(videoId, overlayId) {
       document.getElementById(overlayId).classList.add('hidden');
       const vid = document.getElementById(videoId);
       vid.controls = true;
       vid.play();
+      // Pause music
+      if (isPlaying) {
+        audio.pause();
+        setMusicState(false);
+      }
+      // Resume music when video ends or pauses
+      vid.addEventListener('ended', () => {
+        audio.play().then(() => setMusicState(true)).catch(() => {});
+      });
+      vid.addEventListener('pause', () => {
+        audio.play().then(() => setMusicState(true)).catch(() => {});
+      });
     }
 
     // SCROLL REVEAL
@@ -645,6 +665,51 @@
       { threshold: 0.08 }
     );
     document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+
+    // ── CONFETTI ──────────────────────────────────────────────
+    (function spawnConfetti() {
+      const colors = ['#c8441a','#d4a843','#f0ead6','#e85d04','#ffbe0b','#ff006e','#8338ec'];
+      const total  = 120;
+      const style  = document.createElement('style');
+      style.textContent = `
+        .cf {
+          position: fixed;
+          top: -20px;
+          width: 10px; height: 10px;
+          border-radius: 2px;
+          pointer-events: none;
+          z-index: 9999;
+          animation: cf-fall linear forwards;
+        }
+        @keyframes cf-fall {
+          0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+          80%  { opacity: 1; }
+          100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(style);
+
+      for (let i = 0; i < total; i++) {
+        setTimeout(() => {
+          const el = document.createElement('div');
+          el.className = 'cf';
+          // Shoot from left OR right edge
+          const fromLeft = i < total / 2;
+          const xStart   = fromLeft ? Math.random() * 15 : 85 + Math.random() * 15;
+          el.style.cssText = `
+            left: ${xStart}%;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            width:  ${6 + Math.random() * 8}px;
+            height: ${6 + Math.random() * 8}px;
+            border-radius: ${Math.random() > 0.4 ? '50%' : '2px'};
+            animation-duration: ${2.5 + Math.random() * 2}s;
+            animation-delay: 0s;
+          `;
+          document.body.appendChild(el);
+          el.addEventListener('animationend', () => el.remove());
+        }, i * 35);
+      }
+    })();
   </script>
 </body>
 </html>
